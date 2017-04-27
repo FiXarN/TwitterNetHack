@@ -1,3 +1,5 @@
+test
+
 Movement:
 ->":Player" : Move(int dir)
 activate ":Player"
