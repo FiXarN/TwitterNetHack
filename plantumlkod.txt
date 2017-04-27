@@ -1,0 +1,325 @@
+Movement:
+->":Player" : Move(int dir)
+activate ":Player"
+":Player"->":Room":destination_Check()
+activate ":Room"
+":Room"->":Player": returns int location Id
+deactivate ":Room"
+":Player"->":Room": move:Character(int dir)
+activate ":Room"
+deactivate ":Room"
+deactivate “:Player”
+
+
+PICK-UP:
+->":Player" :Interact()
+activate ":Player"
+":Player" -> ":Room": location_check()
+activate ":Room"
+":Room" -> ":Player": Returns int location id
+deactivate ":Room"
+":Player"->":Inventory":add_Item(int itemId)
+activate ":Inventory"
+":Inventory" -> ":Item":Item(int Id)
+activate ":Item"
+deactivate ":Inventory"
+":Item"->":Misc": constructor(int Id)
+activate ":Misc"
+deactivate ":Item"
+deactivate ":Misc"
+":Player"->":Room": remove()
+activate ":Room"
+deactivate ":Room"
+deactivate ":Player"
+
+
+GENERATE LEVEL:
+@startuml
+
+title "System event generate_Level"
+
+activate ":Game"
+    ":Game" -> ":Level" : generate_Level(string seed)
+    activate ":Level"
+        ":Level" -> ":TwitterManager" : get_Feed(string seed)
+        activate ":TwitterManager"
+            ":TwitterManager" -> ":Level" : Returns layout
+        deactivate ":TwitterManager"
+        ":Level" -> ":Room" : Room(int grid[])
+        activate ":Room"
+            ":Room" -> ":Item" : Item(int itemID)
+            activate ":Item"
+            ":Item" -> ":Misc/:Equipable/:Consumable" : Constructor(int itemID)
+                activate ":Misc/:Equipable/:Consumable"
+                deactivate ":Misc/:Equipable/:Consumable"
+            deactivate ":Item"
+            
+            ":Room" -> ":Chest" : Chest()
+            activate ":Chest"
+            deactivate ":Chest"
+            
+            ":Room" -> ":Door" : Door()
+            activate ":Door"
+            deactivate ":Door"
+            
+            ":Room" -> ":Monster" : Monster()
+            activate ":Monster"
+            deactivate ":Monster"
+            
+            ":Room" -> ":Merchant" : Merchant()
+            activate ":Merchant"
+            deactivate ":Merchant"
+        deactivate ":Room"
+    deactivate ":Level"
+deactivate ":Game"
+
+@enduml
+
+
+OPEN DOOR:
+->":Player": interact()
+activate ":Player"
+":Player"->":Room": location_check
+activate ":Room" 
+":Room"->":Player": Return int location ID
+deactivate ":Room"
+
+":Player"->":Room": open_Door()
+activate ":Room"
+deactivate ":Room"
+
+deactivate ":Player"
+
+
+OPEN CHEST:
+->":Player": interact()
+activate ":Player"
+":Player"->":Room": location_check
+activate ":Room" 
+":Room"->":Player": Return int location ID
+deactivate ":Room"
+
+":Player"->":Room": open_Chest()
+activate ":Room"
+
+":Room"->":Chest:Inventory": show_Inventory()
+activate ":Chest:Inventory"
+deactivate ":Chest:Inventory"
+deactivate ":Room"
+
+deactivate ":Player"
+
+
+TRUMP_CHECK:
+":Game"->":Player": trump_Check()
+activate ":Game"
+activate ":Player"
+":Player" -> ":Game": return win boolean
+deactivate ":Player"
+
+":Game" -> ":Game": game_Win()
+deactivate ":Game"
+
+
+SHOW INVENTORY:
+->":Player": show_Info()
+activate ":Player"
+
+":Player" -> "Player:Inventory": show_Inventory()
+activate "Player:Inventory"
+deactivate "Player:Inventory"
+
+":Player" -> "Player:Stats": show_Stats()
+activate "Player:Stats"
+deactivate "Player:Stats"
+deactivate ":Player"
+
+
+PLAYER DEATH:
+":Game" -> ":Player": player_Death()
+activate ":Game"
+
+activate ":Player"
+":Player" -> "Player:Stats": get_HP()
+activate "Player:Stats"
+"Player:Stats" -> ":Player": return int HP
+deactivate "Player:Stats"
+":Player" -> ":Game": return death boolean
+deactivate ":Player"
+
+":Game" -> ":Game": game_Lose()
+deactivate ":Game"
+
+
+COMBAT ACTION(PLAYER):
+-> ":Player": combat_Action()
+activate ":Player"
+
+":Player"-> ":Room": location_Check()
+activate ":Room"
+":Room"-> ":Player": return int location ID
+deactivate ":Room"
+
+":Player"-> ":Room": attack_Monster(int damage)
+activate ":Room"
+":Room" -> "Room:Monster": update_HP(int damage)
+activate "Room:Monster"
+deactivate ":Room"
+"Room:Monster"-> "Monster:Stats": update_HP(int damage)
+deactivate "Room:Monster"
+activate "Monster:Stats"
+deactivate "Monster:Stats"
+
+deactivate ":Player"
+
+
+
+COMBAT ACTION MONSTER:
+":Player"-> ":Room": damage_Check()
+activate ":Player"
+activate ":Room"
+
+":Room" -> "Room:Monster": get_Action()
+activate "Room:Monster"
+"Room:Monster" -> ":Room": return int damage
+deactivate "Room:Monster"
+
+":Room"-> ":Player": return int damage
+deactivate ":Room"
+":Player"-> "Player:Stats": update_HP(int damage)
+activate "Player:Stats"
+deactivate "Player:Stats"
+deactivate ":Player"
+
+
+CLASS DIAGRAM:
+@startuml
+
+title Classes - Class Diagram
+
+package "Interaction" {
+Item--Miscellaneous
+Item--Equipable
+Item--Consumables
+class Door
+class Merchant
+class Chest
+class Monster
+}
+package Information {
+class Room
+class Inventory
+class Stats
+}
+package "Game mechanics" {
+class Player
+class Game
+}
+package World{
+class Level
+class TwitterManager
+}
+
+Room--"Door"
+Level--Game
+Level--TwitterManager
+Level--"Room"
+Game--Player
+Player--Stats
+Player--Inventory
+Stats--Monster
+Room--Item
+Room--Merchant
+Room--Chest
+Room--Monster
+Inventory--Item
+Inventory--Chest
+
+
+
+class Level {
+    +Level()
+    +void generate_Level()
+    
+}
+class Game {
+    +Game()
+    +void game_Win()
+    +void game_Lose()
+    
+}
+class Room {
+    +int grid[]
+    +Room(int grid[])
+    +int location_check()
+    +void remove()
+    +int destination_Check()
+    +void move_Character()
+    +void open_Door()
+    +void open_Chest()
+    +void attack_Monster(int damage)
+    +int damage_Check()
+}
+class TwitterManager {
+    +TwitterManager()
+    +void get_Feed(string seed)
+}
+class Player{
+    +bool trump
+    +Player()
+    +void interact()
+    +voidmove(int direction)
+    +bool trump_Check()
+    +void show_Info()
+    +bool player_Death()
+    +void combat_Action()
+}
+class Item {
+    +Item(int itemID)
+}
+class Door {
+    +bool doorLocked
+    +Door()
+}
+class Merchant {
+    +Merchant()
+}
+class Chest {
+    +bool chestLocked
+    +Chest()
+}
+class Monster {
+    +Monster()
+    +void update_HP()
+    +int get_Action()
+}
+class Stats {
+    + int damage
+    + int hp
+    +Stats()
+    +void update_HP(int damage)
+    +int get_HP()
+}
+class Inventory {
+    +int gold
+    +Inventory()
+    +void add_Item(int itemId)
+    +void show_Inventory()
+}
+class Miscellaneous{
+    +int miscID
+    +Miscellaneous()
+}
+class Equipable {
+    +int equipID
+    +Equipable()
+}
+class Consumables {
+    +int consumablesID
+    +Consumables()
+}
+
+@enduml
+
+
+
