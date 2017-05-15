@@ -10,7 +10,7 @@ deactivate ":Room"
 ":Player"->":Room": move:Character(int dir)
 activate ":Room"
 deactivate ":Room"
-deactivate ì:Playerî
+deactivate ‚Äú:Player‚Äù
 
 
 PICK-UP:
@@ -322,6 +322,273 @@ class Consumables {
 }
 
 @enduml
+
+-----------------------------NEW CLASS DIAGRAM-------------------------------------------
+@startuml
+
+
+
+title Classes - Class Diagram
+
+
+
+package "Interaction" {
+
+class Door
+
+class Monster
+
+class Trump
+
+class Rock
+
+}
+
+package Information {
+
+class Room
+
+class Stats
+
+}
+
+package "Game mechanics" {
+
+class Player
+
+class Game
+
+}
+
+package World{
+
+class Level
+
+class TwitterManager
+
+}
+
+
+
+Room--"Door"
+
+Level--Game
+
+Level--TwitterManager
+
+Level--"Room"
+
+Game--Player
+
+Player--Stats
+
+Player--"Room"
+
+Stats--Monster
+
+Room--Trump
+
+Room--"Rock"
+
+Room--Monster
+
+
+
+
+
+
+
+class Level {
+
+    +Level(int newSeed)
+    +~Level()
+
+    +Room* get_Current_Room()
+    +void switch_Room(int roomChange)
+    +void update(float dt)
+    -void expand_Rooms()
+    -void add_Room(int data[100])
+    -Room** rooms
+    -int numberOfRooms
+    -int capacityIncrement
+    -int capacity
+    -int currentRoom
+    -TwitterManager twitterManager
+    -int seed
+    -sf::Font font
+    -sf::Text roomText
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+
+    
+
+}
+
+class Game {
+
+    +Game(int seed)
+    +~Game()
+    +void update(float dt)
+    +void game_Win()
+    +void game_Lose()
+    +bool game_Exit()
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+    -Level* level
+    -Player player
+    -bool win
+    -bool death
+    -bool exit
+    -sf::Texture winLose
+    -sf::Sprite spriteWL
+    -sf::Music m_Game
+    -sf::Music m_Lose
+    -sf::Music m_Win
+
+    
+
+}
+
+class Room {
+
+    +Room(int data[100])
+    +~Room()
+    +void update(float dt)
+    +int location_Check()
+    +void attack_Monster(int damage)
+    +int damage_Check()
+    +void set_Player_Grid_Pos(sf::Vector2i newGridPos)
+    +void move_Character(int direction)
+    +bool destination_Check(int direction)
+    -void expand()
+    -void expand_Monsters()
+    -void add_Monster(int x, int y, sf::Vector2f position)
+    -void add_entity(sf::Vector2f position, int entityType)
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+    -int grid[10][10]
+    -Monster** monsters
+    -sf::Vector2i* monstersPos
+    -sf::Vector2i gridPos
+    -sf::Texture boardTex
+    -sf::Sprite boardSprite
+    -sf::Drawable** entities
+    -int nrOfEntities
+    -int nrOfMonsters
+    -int capacityEntities
+    -int capacityMonsters
+    -int capacityIncrement
+
+}
+
+class TwitterManager {
+
+    +TwitterManager()
+    +~TwitterManager()
+    +void get_Room_Array(std::Vector<std::Vector<int>> * rooms, int seed)
+    
+
+}
+
+class Player{
+
+  +Player()
+  +~Player()
+  +void update_Hp(int dmg)
+  +void update(float dt)
+  +void set_Current_Room(Room* new room)
+  +void combat_Check(float dt)
+  +bool trump_Check()
+  +bool player_Death()
+  +int get_Room_Change()
+  -void draw(sf::RenderTarget &target, sf::RenderStates states)
+  -Stats stats
+  -sf::Texture playerTex
+  -sf::Sprite playerSprite
+  -sf::Texture playerHpTex
+  -sf::Sprite* playerHpArray
+  -sf::Sprite playerHpSprite
+  -sf::Texture combatTex
+  -sf::Sprite combatSprite
+  -sf::SoundBuffer fightingBuffer
+  -sf::SoundBuffer killBuffer
+  -sf::Sound fightingSound
+  -sf::Sound killSound
+  -int hpSize
+  -bool inCombat
+  -bool isPlaying
+  -bool win
+  -bool death
+  -int roomChange
+  -float damageCounter
+  -Room* currentRoom
+  -bool rightWasPressed
+  -bool leftWasPressed
+  -bool upWasPressed
+  -bool downWasPressed
+  -bool interactWasPressed
+
+}
+
+class Door {
+
+    +Door(sf::Vector2f position)
+    +~Door()
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+    -sf::Texture doorTex
+    -sf::Sprite doorSprite
+    
+
+}
+
+
+class Monster {
+
+    +Monster(sf::Vector2f position)
+    +~Monster()
+    +void update_Hp(int dmg)
+    +int get_Action()
+    +int get_Hp()
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+    -sf::Texture monsterTex
+    -sf::Sprite monsterSprite
+    -Stats stats
+    
+
+}
+
+class Stats {
+
+  +Stats()
+  +~Stats()
+  +void set_Hp(int hp)
+  +void set_Damage(int damage)
+  +int get_Hp()
+  +int get_Dmg()
+  -int health
+  -int damage
+
+}
+
+class Rock {
+
+    +Rock(sf::Vector2f position)
+    +~Rock()
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+    -sf::Texture rockTex
+    -sf::Sprite rockSprite
+}
+
+class Trump {
+    +Trump(sf::Vector2f position)
+    +~Trump()
+    -void draw(sf::RenderTarget &target, sf::RenderStates states)
+    -sf::Texture trumpTex
+    -sf::Sprite trumpSprite
+}
+
+
+
+@enduml
+
+
 
 
 
